@@ -5,10 +5,15 @@ FROM alpine:latest as client
 WORKDIR /go/src/ReversiOnlineBattle
 RUN apk add --no-cache nodejs && apk add --update npm && npm install -g yarn
 COPY ./scripts ./scripts/
+
+WORKDIR ./scripts
+RUN yarn install
+
+WORKDIR ../
 COPY ./website/src ./website/src/
 
 WORKDIR ./scripts
-RUN yarn install && yarn build
+RUN yarn build
 
 
 FROM golang:latest as server
