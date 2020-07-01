@@ -3,11 +3,12 @@
 FROM alpine:latest as client
 
 WORKDIR /go/src/ReversiOnlineBattle
-COPY ./scripts /scripts
-COPY ./website /website
-RUN apk add --no-cache nodejs && apk add --update npm
-RUN cd /scripts
-RUN npm build
+RUN apk add --no-cache nodejs && apk add --update npm && npm install -g yarn
+COPY ./scripts ./scripts/
+COPY ./website/src ./website/src/
+
+WORKDIR ./scripts
+RUN yarn install && yarn build
 
 
 FROM golang:latest as server
@@ -24,7 +25,7 @@ FROM alpine
 RUN apk add --no-cache ca-certificates
 
 COPY --from=server /go/src/ReversiOnlineBattle/cmd/main /main
-COPY --from=client /website/static /website/static
+COPY --from=client /go/src/ReversiOnlineBattle/website/static /website/static/
 RUN chmod +x /main
 
 ENV PORT 8080
