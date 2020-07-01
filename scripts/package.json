@@ -1,0 +1,24 @@
+{
+  "name": "rob-client",
+  "version": "1.0.0",
+  "description": "the client web page of Reversi Online Battle app.",
+  "main": "index.js",
+  "repository": "https://github.com/yatabis/RversiOnlineBattle",
+  "author": "yatabis",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "autoprefixer": "^9.8.4",
+    "babel-loader": "^8.1.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-postcss": "^8.0.0",
+    "gulp-pug": "^4.0.1",
+    "gulp-sass": "^4.1.0",
+    "gulp-uglify-es": "^2.0.0"
+  },
+  "scripts": {
+    "build": "gulp all"
+  }
+}

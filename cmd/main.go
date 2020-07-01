@@ -1,7 +1,20 @@
 package main
 
-import "ReversiOnlineBattle/local"
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	"ReversiOnlineBattle/client"
+)
 
 func main() {
-	local.Play()
+	port := os.Getenv("PORT")
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "Hello, this is Reversi Online Battle.\nplay game => /play\n")
+	})
+	client.Init(mux)
+	log.Fatal(http.ListenAndServe(":" + port, mux))
 }

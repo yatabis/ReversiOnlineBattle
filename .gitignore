@@ -1,3 +1,4 @@
+## Go
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -13,4 +14,10 @@
 
 # Dependency directories (remove the comment below to include it)
 go.mod
+
+## Yarn
+scripts/node_modules
+scripts/yarn.lock
+
+## Other
 .idea
