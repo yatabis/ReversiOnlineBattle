@@ -1,0 +1,1 @@
+const initCanvas=n=>{n.fillStyle="green",n.fillRect(0,0,418,418)};window.addEventListener("load",()=>{const n=document.getElementById("canvas").getContext("2d");initCanvas(n)});

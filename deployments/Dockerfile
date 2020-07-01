@@ -14,6 +14,7 @@ FROM alpine
 RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /go/src/ReversiOnlineBattle/cmd/main /main
+COPY --from=builder /go/src/ReversiOnlineBattle/website/static /website/static
 RUN chmod +x /main
 
 ENV PORT 8080
