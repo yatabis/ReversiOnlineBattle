@@ -77,7 +77,27 @@ const board = new Board([
 ])
 
 const host = document.getElementById("host").innerText
+const gameId = document.getElementById("game-id").innerText
 const ws = new WebSocket("ws://" + host + "/open")
+ws.onopen = (event) => console.log("connected.", event)
+ws.onclose = (event) => console.log("disconnected.", event)
+ws.onerror = (event) => console.log("Error: ", event)
 ws.onmessage = (event) => {
-    console.log(event.data)
+    board.updateBoard(JSON.parse(event.data))
+    turn = 3 - turn
+}
+
+let turn = 1
+
+const put = (x, y) => {
+    const data = JSON.stringify({
+        gameId: gameId,
+        turn: turn,
+        point: {
+            x: x - 1,
+            y: y - 1
+        }
+    })
+    console.log("send: ", data)
+    ws.send(data)
 }

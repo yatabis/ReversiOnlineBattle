@@ -11,5 +11,7 @@ html(lang="ja")
         h1.title Reversi Online Battle
         div.board
             canvas#canvas(width=818 height=818)
-        span#host {{.}}
+        div.info
+            p#host {{.host}}
+            p#game-id {{.gameId}}
         script(src="resources/js/client.js")
