@@ -4,6 +4,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+
+	"ReversiOnlineBattle/websocket"
 )
 
 func Init(mux *http.ServeMux) {
@@ -18,7 +20,9 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	if err := t.Execute(w, r.Host); err != nil {
+	gameId := websocket.StartGame()
+	info := map[string]string{"host": r.Host, "gameId": gameId}
+	if err := t.Execute(w, info); err != nil {
 		log.Println(err)
 	}
 }
