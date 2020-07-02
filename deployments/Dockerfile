@@ -19,8 +19,10 @@ RUN yarn build
 FROM golang:latest as server
 
 WORKDIR /go/src/ReversiOnlineBattle
-COPY . .
 ENV GO111MODULE on
+COPY ./go.mod  ./
+RUN go mod download
+COPY . .
 
 WORKDIR ./cmd
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o main
