@@ -1,6 +1,8 @@
 package client
 
 import (
+	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -10,5 +12,13 @@ func Init(mux *http.ServeMux) {
 }
 
 func playHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./website/static/html/play.html")
+	log.Printf("Host: %s", r.Host)
+	t, err := template.ParseFiles("./website/static/html/play.html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if err := t.Execute(w, r.Host); err != nil {
+		log.Println(err)
+	}
 }

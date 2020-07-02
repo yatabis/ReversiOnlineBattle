@@ -75,3 +75,9 @@ const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
+
+const host = document.getElementById("host").innerText
+const ws = new WebSocket("ws://" + host + "/open")
+ws.onmessage = (event) => {
+    console.log(event.data)
+}
