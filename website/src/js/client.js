@@ -5,6 +5,8 @@ const boardSize  = cellSize * 8 + lineWidth * 9
 const baseSize   = lineWidth + cellSize
 const diskMargin = 10
 const diskRadius = (cellSize - diskMargin) / 2
+const realSize   = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7)
+const sizeRatio  = boardSize / realSize
 
 class Board {
     constructor(board) {
@@ -65,6 +67,8 @@ class Board {
     }
 }
 
+const canvas = document.getElementById("canvas")
+
 const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -75,3 +79,29 @@ const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
+
+const host = document.getElementById("host").innerText
+const gameId = document.getElementById("game-id").innerText
+const ws = new WebSocket("ws://" + host + "/open")
+ws.onopen = (event) => console.log("connected.", event)
+ws.onclose = (event) => console.log("disconnected.", event)
+ws.onerror = (event) => console.log("Error: ", event)
+ws.onmessage = (event) => {
+    board.updateBoard(JSON.parse(event.data))
+    turn = 3 - turn
+}
+
+canvas.addEventListener("click", (event) => {
+    const data = JSON.stringify({
+        gameId: gameId,
+        turn: turn,
+        point: {
+            x: Math.floor((event.clientX - canvas.offsetLeft) / baseSize * sizeRatio),
+            y: Math.floor((event.clientY - canvas.offsetTop) / baseSize * sizeRatio)
+        }
+    })
+    console.log("send: ", data)
+    ws.send(data)
+})
+
+let turn = 1

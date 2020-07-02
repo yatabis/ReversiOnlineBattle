@@ -5,9 +5,9 @@ type Reversi struct {
 	turn int
 }
 
-func Init() Reversi {
+func Init() *Reversi {
 	board := initBoard()
-	rv := Reversi{board, 1}
+	rv := &Reversi{board, 1}
 	return rv
 }
 
