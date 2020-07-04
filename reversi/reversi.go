@@ -7,7 +7,9 @@ type Reversi struct {
 
 func Init() *Reversi {
 	board := initBoard()
+	board.suggest(1)
 	rv := &Reversi{board, 1}
+	rv.show()
 	return rv
 }
 
@@ -19,5 +21,11 @@ func (rv *Reversi) Put(t, x, y int) bool {
 		return false
 	}
 	rv.turn = 3 - rv.turn
+	rv.Board.suggest(rv.turn)
+	rv.show()
 	return true
+}
+
+func (rv Reversi) BoardInfo() [][]int {
+	return rv.Board.board()
 }
