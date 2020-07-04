@@ -1,21 +1,37 @@
 package reversi
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type Board [8][8]int
+type Board [10][10]int
 
 func initBoard() Board {
-	rv := Board{}
-	rv[3][3] = 2
-	rv[3][4] = 1
-	rv[4][3] = 1
-	rv[4][4] = 2
-	rv.show()
-	return rv
+	b := Board{}
+	for i := 0; i < 10; i++ {
+		b[0][i] = -1
+		b[9][i] = -1
+		b[i][0] = -1
+		b[i][9] = -1
+	}
+	b[4][4] = 2
+	b[4][5] = 1
+	b[5][4] = 1
+	b[5][5] = 2
+	b.show()
+	return b
+}
+
+func (b Board) board() (board [][]int) {
+	board = make([][]int, 8)
+	for i := 0; i < 8; i++ {
+		board[i] = b[i + 1][1:9]
+	}
+	return
 }
 
 func (b Board) show() {
-	for _, row := range b {
+	for _, row := range b.board() {
 		fmt.Println(row)
 	}
 }
