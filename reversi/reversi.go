@@ -21,3 +21,7 @@ func (rv *Reversi) Put(t, x, y int) bool {
 	rv.turn = 3 - rv.turn
 	return true
 }
+
+func (rv Reversi) BoardInfo() [][]int {
+	return rv.Board.board()
+}
