@@ -1,10 +1,12 @@
 const p2 = Math.PI * 2
-const lineWidth  = 2
-const cellSize   = 100
-const boardSize  = cellSize * 8 + lineWidth * 9
-const baseSize   = lineWidth + cellSize
-const diskMargin = 10
-const diskRadius = (cellSize - diskMargin) / 2
+const lineWidth     = 2
+const cellSize      = 100
+const boardSize     = cellSize * 8 + lineWidth * 9
+const baseSize      = lineWidth + cellSize
+const diskMargin    = 10
+const diskRadius    = cellSize / 2 - diskMargin
+const suggestMargin = 40
+const suggestRadius = cellSize / 2 - suggestMargin
 const realSize   = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7)
 const sizeRatio  = boardSize / realSize
 
@@ -45,12 +47,19 @@ class Board {
     }
 
     putDisk(x, y, c) {
+        let radius
         switch (c) {
             case 1:
                 this.ctx.fillStyle = "black"
+                radius = diskRadius
                 break
             case 2:
                 this.ctx.fillStyle = "white"
+                radius = diskRadius
+                break
+            case 3:
+                this.ctx.fillStyle = "gray"
+                radius = suggestRadius
                 break
             default:
                 return
@@ -60,8 +69,8 @@ class Board {
         const centerX = left + cellSize / 2
         const centerY = top + cellSize / 2
         this.ctx.beginPath()
-        this.ctx.moveTo(centerX + diskRadius, centerY)
-        this.ctx.arc(centerX, centerY, diskRadius, 0, p2, true)
+        this.ctx.moveTo(centerX + radius, centerY)
+        this.ctx.arc(centerX, centerY, radius, 0, p2, true)
         this.ctx.closePath()
         this.ctx.fill()
     }
@@ -72,10 +81,10 @@ const canvas = document.getElementById("canvas")
 const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 1, 0, 0, 0],
-    [0, 0, 0, 1, 2, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 3, 0, 0, 0, 0],
+    [0, 0, 3, 2, 1, 0, 0, 0],
+    [0, 0, 0, 1, 2, 3, 0, 0],
+    [0, 0, 0, 0, 3, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
