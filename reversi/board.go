@@ -40,51 +40,42 @@ func (b *Board) put(t, x, y int) bool {
 	if b[y][x] != 0 {
 		return false
 	}
-	if !b.reverse(t, x, y) {
-		return false
-	}
-	b[y][x] = t
-	//fmt.Printf("(%d, %d) <- %d\n", x, y, t)
-	b.show()
-	return true
-}
-
-func (b *Board) reverse(t, x, y int) bool {
-	c := 0
-	for dy := -1; dy <= 1; dy += 1 {
-		for dx := -1; dx <= 1; dx += 1 {
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
 			if dx == 0 && dy == 0 {
 				continue
 			}
-			n := b.search(t, x + dx, y + dy, dx, dy)
-			if n > 1 {
-				c += n - 1
+			n := b.search(t, x, y, dx, dy)
+			if n == 0 {
+				continue
 			}
+			b.reverse(t, x, y, dx, dy, n + 1)
 		}
 	}
-	//fmt.Printf("c = %d\n", c)
-	return c > 0
+	b.show()
+	return b[y][x] == t
 }
 
 func (b *Board) search(t, x, y, dx, dy int) int {
-	//fmt.Printf("searching (%d, %d)\n", x, y)
-	if x + dx < 0 || x + dx > 7 || y + dy < 0 || y + dy > 7 {
+	//log.Printf("searching for (%d, %d) for (%d, %d)...\n", x, y, dx, dy)
+	n := 0
+	for b[y + dy][x + dx] == 3 - t {
+		x += dx
+		y += dy
+		n += 1
+		//log.Printf("  b[%d][%d] = %d (n = %d)", x, y, b[y][x], n)
+	}
+	if b[y + dy][x + dx] == t {
+		//log.Printf("  b[%d][%d] = %d (n = %d): returned", x + dx, y + dy, b[y + dy][x + dx], n)
+		return n
+	} else {
+		//log.Printf("  b[%d][%d] = %d (n = %d): returned", x + dx, y + dy, b[y + dy][x + dx], 0)
 		return 0
 	}
-	switch b[y][x] {
-	case 0:
-		return 0
-	case t:
-		return 1
-	case 3 - t:
-		n := b.search(t, x + dx, y + dy, dx, dy)
-		if n == 0 {
-			return 0
-		}
-		b[y][x] = t
-		//fmt.Printf("(%d, %d) <- %d\n", x, y, t)
-		return n + 1
-	default:
-		return 0
+}
+
+func (b *Board) reverse(t, x, y, dx, dy, n int) {
+	for i := 0; i < n; i++ {
+		b[y + dy * i][x + dx * i] = t
 	}
 }
