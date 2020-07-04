@@ -25,10 +25,13 @@ func open(ws *websocket.Conn) {
 		if err := websocket.JSON.Receive(ws, &data); err != nil {
 			log.Printf("recieve data: %+v\n", data)
 			log.Println(err)
-			continue
+			break
 		}
 		log.Printf("recieve: %+v\n", data)
-		reversi := games[data.GameId]
+		reversi, ok := games[data.GameId]
+		if !ok {
+			break
+		}
 		if reversi.Put(data.Turn, data.Point.X, data.Point.Y) {
 			if err := websocket.JSON.Send(ws, reversi.Board); err != nil {
 				log.Println(err)
