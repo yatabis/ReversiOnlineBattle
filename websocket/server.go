@@ -32,8 +32,8 @@ func open(ws *websocket.Conn) {
 		if !ok {
 			break
 		}
-		if reversi.Put(data.Turn, data.Point.X, data.Point.Y) {
-			if err := websocket.JSON.Send(ws, reversi.Board); err != nil {
+		if reversi.Put(data.Turn, data.Point.X + 1, data.Point.Y + 1) {
+			if err := websocket.JSON.Send(ws, reversi.BoardInfo()); err != nil {
 				log.Println(err)
 			}
 		}
