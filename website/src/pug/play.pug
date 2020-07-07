@@ -9,8 +9,10 @@ html(lang="ja")
 
     body
         h1.title Reversi Online Battle
+        div.score
+            canvas#score(width=818 height=104)
         div.board
-            canvas#canvas(width=818 height=818)
+            canvas#board(width=818 height=818)
         div.info
             p#host {{.host}}
             p#game-id {{.gameId}}
