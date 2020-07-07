@@ -100,7 +100,26 @@ ws.onmessage = (event) => {
     switch (msg.type) {
         case "board":
             board.updateBoard(msg.data)
-            turn = 3 - turn
+            break
+        case "not_your_turn":
+            console.log("Not your turn.")
+            break
+        case "invalid_put":
+            console.log("Invalid put.")
+            break
+        case "turn_change":
+            turn = msg.data
+            console.log("_黒白"[turn] + "の番です。")
+            break
+        case "turn_pass":
+            turn = msg.data
+            console.log("_白黒"[turn] + "はパスです。")
+            break
+        case "game_end":
+            console.log("ゲーム終了")
+            break
+        default:
+            console.log("receive unknown message.")
     }
 }
 
