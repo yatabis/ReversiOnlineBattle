@@ -7,14 +7,17 @@ const diskMargin    = 10
 const diskRadius    = cellSize / 2 - diskMargin
 const suggestMargin = 40
 const suggestRadius = cellSize / 2 - suggestMargin
-const realSize   = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7)
-const sizeRatio  = boardSize / realSize
+const realSize      = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.7)
+const sizeRatio     = boardSize / realSize
+const markWidth     = 6
 
 class Board {
     constructor(board) {
         this.board = board
-        this.ctx = document.getElementById("canvas").getContext("2d")
+        this.ctx = document.getElementById("board").getContext("2d")
+        this.score = document.getElementById("score").getContext("2d")
         this.updateBoard(this.board)
+        this.updateScores()
     }
 
     initBoard() {
@@ -68,15 +71,86 @@ class Board {
         const top = y * baseSize + lineWidth
         const centerX = left + cellSize / 2
         const centerY = top + cellSize / 2
-        this.ctx.beginPath()
-        this.ctx.moveTo(centerX + radius, centerY)
-        this.ctx.arc(centerX, centerY, radius, 0, p2, true)
-        this.ctx.closePath()
-        this.ctx.fill()
+        this.circle(this.ctx, centerX, centerY, radius)
+    }
+
+    circle(context, x, y, r) {
+        context.beginPath()
+        context.moveTo(x + r, y)
+        context.arc(x, y, r, 0, p2, true)
+        context.closePath()
+        context.fill()
+    }
+
+    initScore() {
+        this.score.clearRect(0, 0, boardSize, baseSize)
+        this.score.fillStyle = "skyblue"
+        this.score.fillRect(0, 0, boardSize, baseSize)
+        this.score.strokeStyle = "black"
+        this.score.lineWidth = lineWidth
+        this.score.beginPath()
+        this.score.moveTo(lineWidth / 2, lineWidth / 2)
+        this.score.lineTo(boardSize - lineWidth / 2, lineWidth / 2)
+        this.score.lineTo(boardSize - lineWidth / 2, baseSize + lineWidth / 2)
+        this.score.lineTo(lineWidth / 2, baseSize + lineWidth / 2)
+        this.score.closePath()
+        this.score.stroke()
+    }
+
+    updateScores() {
+        const flat = this.board.flat()
+        const black = flat.filter(x => x === 1).length
+        const white = flat.filter(x => x === 2).length
+
+        this.initScore()
+        const centerY = lineWidth + cellSize / 2
+        const left = lineWidth + cellSize
+        const right = boardSize - lineWidth - cellSize
+        this.score.fillStyle = "black"
+        this.circle(this.score, left, centerY, diskRadius)
+        this.score.fillStyle = "white"
+        this.circle(this.score, right, centerY, diskRadius)
+
+        this.score.font = "48px sans-serif"
+        this.score.textBaseline = "middle"
+        this.score.fillStyle = "black"
+        this.score.fillText(black.toString(), baseSize * 1.5 + cellSize / 2, cellSize / 2 + lineWidth)
+        this.score.textAlign = "end"
+        this.score.fillText(white.toString(), boardSize - baseSize * 1.5 - cellSize / 2, cellSize / 2 + lineWidth)
+        this.score.textAlign = "center"
+        this.score.fillText("-", boardSize / 2, cellSize / 2 + lineWidth)
+        this.turnMark()
+    }
+
+    turnMark() {
+        const x1 = lineWidth + markWidth / 2 + cellSize / 2
+        const x2 = baseSize - markWidth / 2 + cellSize / 2
+        const x3 = boardSize - baseSize - markWidth / 2 - cellSize / 2
+        const x4 = boardSize - markWidth / 2 - cellSize / 2
+        const y1 = lineWidth + markWidth / 2
+        const y2 = baseSize - markWidth / 2
+        this.score.strokeStyle = "red"
+        this.score.lineWidth = markWidth
+        this.score.beginPath()
+        if (turn === 1) {
+            this.score.moveTo(x1, y1)
+            this.score.lineTo(x2, y1)
+            this.score.lineTo(x2, y2)
+            this.score.lineTo(x1, y2)
+        } else if (turn === 2) {
+            this.score.moveTo(x3, y1)
+            this.score.lineTo(x4, y1)
+            this.score.lineTo(x4, y2)
+            this.score.lineTo(x3, y2)
+        }
+        this.score.closePath()
+        this.score.stroke()
     }
 }
 
-const canvas = document.getElementById("canvas")
+const canvas = document.getElementById("board")
+
+let turn = 1
 
 const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -109,13 +183,16 @@ ws.onmessage = (event) => {
             break
         case "turn_change":
             turn = msg.data
+            board.updateScores()
             console.log("_黒白"[turn] + "の番です。")
             break
         case "turn_pass":
             turn = msg.data
+            board.updateScores()
             console.log("_白黒"[turn] + "はパスです。")
             break
         case "game_end":
+            board.updateScores()
             console.log("ゲーム終了")
             break
         default:
@@ -135,5 +212,3 @@ canvas.addEventListener("click", (event) => {
     console.log("send: ", data)
     ws.send(data)
 })
-
-let turn = 1
