@@ -5,6 +5,13 @@ type Reversi struct {
 	turn int
 }
 
+type PutResult string
+
+const (
+	InvalidPut PutResult = "invalid_put"
+	TurnChange PutResult = "turn_change"
+)
+
 func Init() *Reversi {
 	board := initBoard()
 	board.suggest(1)
@@ -13,17 +20,17 @@ func Init() *Reversi {
 	return rv
 }
 
-func (rv *Reversi) Put(t, x, y int) bool {
+func (rv *Reversi) Put(t, x, y int) PutResult {
 	if t != rv.turn {
-		return false
+		return InvalidPut
 	}
 	if !rv.Board.put(t, x, y) {
-		return false
+		return InvalidPut
 	}
 	rv.turn = 3 - rv.turn
 	rv.Board.suggest(rv.turn)
 	rv.show()
-	return true
+	return TurnChange
 }
 
 func (rv Reversi) BoardInfo() [][]int {

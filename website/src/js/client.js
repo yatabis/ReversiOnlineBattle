@@ -96,8 +96,12 @@ ws.onopen = (event) => console.log("connected.", event)
 ws.onclose = (event) => console.log("disconnected.", event)
 ws.onerror = (event) => console.log("Error: ", event)
 ws.onmessage = (event) => {
-    board.updateBoard(JSON.parse(event.data))
-    turn = 3 - turn
+    const msg = JSON.parse(event.data)
+    switch (msg.type) {
+        case "board":
+            board.updateBoard(msg.data)
+            turn = 3 - turn
+    }
 }
 
 canvas.addEventListener("click", (event) => {

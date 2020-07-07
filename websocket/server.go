@@ -4,6 +4,8 @@ import (
 	"golang.org/x/net/websocket"
 	"log"
 	"net/http"
+
+	"ReversiOnlineBattle/reversi"
 )
 
 type Data struct {
@@ -13,6 +15,11 @@ type Data struct {
 		X int `json:"x"`
 		Y int `json:"Y"`
 	}             `json:"point"`
+}
+
+type SendMessage struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 func Init(mux *http.ServeMux) {
@@ -28,12 +35,16 @@ func open(ws *websocket.Conn) {
 			break
 		}
 		log.Printf("recieve: %+v\n", data)
-		reversi, ok := games[data.GameId]
+		rv, ok := games[data.GameId]
 		if !ok {
 			break
 		}
-		if reversi.Put(data.Turn, data.Point.X + 1, data.Point.Y + 1) {
-			if err := websocket.JSON.Send(ws, reversi.BoardInfo()); err != nil {
+		if rv.Put(data.Turn, data.Point.X + 1, data.Point.Y + 1) == reversi.TurnChange {
+			msg := SendMessage{
+				Type:  "board",
+				Data: rv.BoardInfo(),
+			}
+			if err := websocket.JSON.Send(ws, msg); err != nil {
 				log.Println(err)
 			}
 		}
