@@ -2,14 +2,17 @@ package reversi
 
 type Reversi struct {
 	Board
-	turn int
+	Turn int
 }
 
 type PutResult string
 
 const (
-	InvalidPut PutResult = "invalid_put"
-	TurnChange PutResult = "turn_change"
+	NotYourTurn PutResult = "not_your_turn"
+	InvalidPut  PutResult = "invalid_put"
+	TurnChange  PutResult = "turn_change"
+	TurnPass    PutResult = "turn_pass"
+	GameEnd     PutResult = "game_end"
 )
 
 func Init() *Reversi {
@@ -21,16 +24,22 @@ func Init() *Reversi {
 }
 
 func (rv *Reversi) Put(t, x, y int) PutResult {
-	if t != rv.turn {
-		return InvalidPut
+	if t != rv.Turn {
+		return NotYourTurn
 	}
 	if !rv.Board.put(t, x, y) {
 		return InvalidPut
 	}
-	rv.turn = 3 - rv.turn
-	rv.Board.suggest(rv.turn)
-	rv.show()
-	return TurnChange
+	if rv.Board.suggest(3 - rv.Turn) {
+		rv.Turn = 3 - rv.Turn
+		rv.show()
+		return TurnChange
+	} else if rv.Board.suggest(rv.Turn) {
+		rv.show()
+		return TurnPass
+	} else {
+		return GameEnd
+	}
 }
 
 func (rv Reversi) BoardInfo() [][]int {

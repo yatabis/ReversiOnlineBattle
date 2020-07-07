@@ -39,14 +39,31 @@ func open(ws *websocket.Conn) {
 		if !ok {
 			break
 		}
-		if rv.Put(data.Turn, data.Point.X + 1, data.Point.Y + 1) == reversi.TurnChange {
-			msg := SendMessage{
-				Type:  "board",
-				Data: rv.BoardInfo(),
-			}
-			if err := websocket.JSON.Send(ws, msg); err != nil {
-				log.Println(err)
-			}
+		result := rv.Put(data.Turn, data.Point.X+1, data.Point.Y+1)
+		send(ws, "board", rv.BoardInfo())
+		switch result {
+		case reversi.NotYourTurn:
+			send(ws, string(result), nil)
+		case reversi.InvalidPut:
+			send(ws, string(result), nil)
+		case reversi.TurnChange:
+			send(ws, string(result), rv.Turn)
+		case reversi.TurnPass:
+			send(ws, string(result), rv.Turn)
+		case reversi.GameEnd:
+			send(ws, string(result), nil)
+		default:
+			break
 		}
+	}
+}
+
+func send(ws *websocket.Conn, result string, data interface{}) {
+	msg := SendMessage{
+		Type: result,
+		Data: data,
+	}
+	if err := websocket.JSON.Send(ws, msg); err != nil {
+		log.Println(err)
 	}
 }
