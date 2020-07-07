@@ -2,8 +2,18 @@ package reversi
 
 type Reversi struct {
 	Board
-	turn int
+	Turn int
 }
+
+type PutResult string
+
+const (
+	NotYourTurn PutResult = "not_your_turn"
+	InvalidPut  PutResult = "invalid_put"
+	TurnChange  PutResult = "turn_change"
+	TurnPass    PutResult = "turn_pass"
+	GameEnd     PutResult = "game_end"
+)
 
 func Init() *Reversi {
 	board := initBoard()
@@ -13,17 +23,23 @@ func Init() *Reversi {
 	return rv
 }
 
-func (rv *Reversi) Put(t, x, y int) bool {
-	if t != rv.turn {
-		return false
+func (rv *Reversi) Put(t, x, y int) PutResult {
+	if t != rv.Turn {
+		return NotYourTurn
 	}
 	if !rv.Board.put(t, x, y) {
-		return false
+		return InvalidPut
 	}
-	rv.turn = 3 - rv.turn
-	rv.Board.suggest(rv.turn)
-	rv.show()
-	return true
+	if rv.Board.suggest(3 - rv.Turn) {
+		rv.Turn = 3 - rv.Turn
+		rv.show()
+		return TurnChange
+	} else if rv.Board.suggest(rv.Turn) {
+		rv.show()
+		return TurnPass
+	} else {
+		return GameEnd
+	}
 }
 
 func (rv Reversi) BoardInfo() [][]int {
