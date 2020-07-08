@@ -166,7 +166,10 @@ const board = new Board([
 const host = document.getElementById("host").innerText
 const gameId = document.getElementById("game-id").innerText
 const ws = new WebSocket("ws://" + host + "/open")
-ws.onopen = (event) => console.log("connected.", event)
+ws.onopen = (event) => {
+    console.log("connected.", event)
+    ws.send(gameId)
+}
 ws.onclose = (event) => console.log("disconnected.", event)
 ws.onerror = (event) => console.log("Error: ", event)
 ws.onmessage = (event) => {
