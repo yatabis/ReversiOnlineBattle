@@ -163,9 +163,8 @@ const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
 
-const host = document.getElementById("host").innerText
-const gameId = document.getElementById("game-id").innerText
-const ws = new WebSocket("ws://" + host + "/open")
+const gameId = document.cookie.split("; ").filter(s => s.startsWith("gameID"))[0].split("=")[1]
+const ws = new WebSocket("ws://" + location.host + "/open")
 ws.onopen = (event) => {
     console.log("connected.", event)
     ws.send(gameId)
