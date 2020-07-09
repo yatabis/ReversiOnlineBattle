@@ -26,12 +26,15 @@ func Init(mux *http.ServeMux) {
 
 func open(ws *websocket.Conn) {
 	var gameId string
-	var game *GameRoom
 	if err := websocket.Message.Receive(ws, &gameId); err != nil {
 		log.Printf("failed to receive the game id: %e\n", err)
 	}
 	log.Printf("connected to %s\n", gameId)
-	game = games[gameId]
+	game, ok := games[gameId]
+	if !ok {
+		StartGame(gameId)
+		game = games[gameId]
+	}
 	game.ws = ws
 	game.onMessage()
 }

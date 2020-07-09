@@ -26,8 +26,10 @@ func createPlayerId() string {
 	return "player"
 }
 
-func StartGame() string {
-	gameId := createGameId()
+func StartGame(gameId string) string {
+	if gameId == "" {
+		gameId = createGameId()
+	}
 	games[gameId] = &GameRoom{
 		GameId:   gameId,
 		HostId:   createPlayerId(),

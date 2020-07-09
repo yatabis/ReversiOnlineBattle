@@ -19,12 +19,14 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	gameId := websocket.StartGame()
-	http.SetCookie(w, &http.Cookie{
-		Name: "gameID",
-		Value: gameId,
-		MaxAge: 60 * 60 * 24 * 14,
-	})
+	if _, err := r.Cookie("gameID"); err != nil {
+		gameId := websocket.StartGame("")
+		http.SetCookie(w, &http.Cookie{
+			Name: "gameID",
+			Value: gameId,
+			MaxAge: 60 * 60 * 24 * 14,
+		})
+	}
 	if err := t.Execute(w, nil); err != nil {
 		log.Println(err)
 	}
