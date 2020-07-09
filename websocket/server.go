@@ -36,5 +36,6 @@ func open(ws *websocket.Conn) {
 		game = games[gameId]
 	}
 	game.ws = ws
+	game.send("board", game.Reversi.BoardInfo())
 	game.onMessage()
 }
