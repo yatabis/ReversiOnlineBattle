@@ -178,6 +178,7 @@ ws.onmessage = (event) => {
     switch (msg.type) {
         case "board":
             board.updateBoard(msg.data)
+            board.updateScores()
             break
         case "not_your_turn":
             console.log("Not your turn.")
