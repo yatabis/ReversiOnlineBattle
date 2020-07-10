@@ -4,6 +4,7 @@ import (
 	"golang.org/x/net/websocket"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Data struct {
@@ -21,7 +22,15 @@ type SendMessage struct {
 }
 
 func Init(mux *http.ServeMux) {
+	mux.Handle("/wait", websocket.Handler(wait))
 	mux.Handle("/open", websocket.Handler(open))
+}
+
+func wait(ws *websocket.Conn) {
+	time.Sleep(5 * time.Second)
+	if err := websocket.Message.Send(ws, "start"); err != nil {
+		log.Printf("failed to send start-message: %e\n", err)
+	}
 }
 
 func open(ws *websocket.Conn) {
