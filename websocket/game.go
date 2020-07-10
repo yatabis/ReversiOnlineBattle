@@ -18,6 +18,8 @@ type GameRoom struct {
 
 var games = make(map[string]*GameRoom)
 
+var players = make(map[string]string)
+
 func createGameId() string {
 	return "test"
 }
@@ -26,16 +28,20 @@ func createPlayerId() string {
 	return "player"
 }
 
-func StartGame(gameId string) string {
+func StartGame(gameId, playerId string) (string, string) {
 	if gameId == "" {
 		gameId = createGameId()
 	}
+	if playerId == "" {
+		playerId = createPlayerId()
+	}
 	games[gameId] = &GameRoom{
 		GameId:   gameId,
-		HostId:   createPlayerId(),
+		HostId:   playerId,
 		Reversi: reversi.Init(),
 	}
-	return gameId
+	players[playerId] = gameId
+	return gameId, playerId
 }
 
 func (g *GameRoom) onMessage() {

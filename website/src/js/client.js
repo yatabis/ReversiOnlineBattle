@@ -163,7 +163,9 @@ const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
 
-const gameId = document.cookie.split("; ").filter(s => s.startsWith("gameID"))[0].split("=")[1]
+const gameId = document.cookie.split("; ").filter(s => s.startsWith("GameID"))[0].split("=")[1]
+const playerId = document.cookie.split("; ").filter(s => s.startsWith("PlayerID"))[0].split("=")[1]
+// TODO: 本番デプロイするときは URL のプロトコルを wss にする
 const ws = new WebSocket("ws://" + location.host + "/open")
 ws.onopen = (event) => {
     console.log("connected.", event)
