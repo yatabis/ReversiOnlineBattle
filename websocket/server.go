@@ -22,6 +22,7 @@ type SendMessage struct {
 }
 
 func Init(mux *http.ServeMux) {
+	initPlayerIds()
 	mux.Handle("/wait", websocket.Handler(wait))
 	mux.Handle("/open", websocket.Handler(open))
 }

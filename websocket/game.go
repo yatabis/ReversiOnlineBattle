@@ -3,6 +3,8 @@ package websocket
 import (
 	"golang.org/x/net/websocket"
 	"log"
+	"math/rand"
+	"time"
 
 	"ReversiOnlineBattle/reversi"
 )
@@ -33,8 +35,14 @@ func createGameId() string {
 	return "test"
 }
 
-func createPlayerId() string {
-	return "player"
+func createPlayerId() (playerId string) {
+	rand.Seed(time.Now().UnixNano())
+	playerId = playerIdList[rand.Intn(len(playerIdList))]
+	for playerIdUsed[playerId] {
+		playerId = playerIdList[rand.Intn(len(playerIdList))]
+	}
+	playerIdUsed[playerId] = true
+	return
 }
 
 func StartGame(gameId, playerId string) (string, string) {
