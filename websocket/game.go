@@ -7,12 +7,21 @@ import (
 	"ReversiOnlineBattle/reversi"
 )
 
+type GameStatus string
+
+const (
+	StatusWaiting  GameStatus = "waiting"
+	StatusStarting GameStatus = "starting"
+	StatusPlaying  GameStatus = "playing"
+	StatusClosed   GameStatus = "closed"
+)
 
 type GameRoom struct {
-	GameId   string
-	HostId   string
-	ClientId string
-	ws       *websocket.Conn
+	GameId  string
+	HostId  string
+	GuestId string
+	Status  GameStatus
+	ws      *websocket.Conn
 	*reversi.Reversi
 }
 
@@ -36,12 +45,26 @@ func StartGame(gameId, playerId string) (string, string) {
 		playerId = createPlayerId()
 	}
 	games[gameId] = &GameRoom{
-		GameId:   gameId,
-		HostId:   playerId,
+		GameId: gameId,
+		HostId: playerId,
+		Status: StatusWaiting,
 		Reversi: reversi.Init(),
 	}
 	players[playerId] = gameId
 	return gameId, playerId
+}
+
+func JoinGame(gameId, guestId string) string {
+	game, ok := games[gameId]
+	if !ok {
+		return ""
+	}
+	if guestId == "" {
+		guestId = createPlayerId()
+	}
+	game.GuestId = guestId
+	game.Status = StatusStarting
+	return guestId
 }
 
 func (g *GameRoom) onMessage() {
