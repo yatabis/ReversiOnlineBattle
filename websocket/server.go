@@ -52,11 +52,24 @@ func wait(ws *websocket.Conn) {
 
 func open(ws *websocket.Conn) {
 	var gameId string
+	var playerId string
 	if err := websocket.Message.Receive(ws, &gameId); err != nil {
 		log.Printf("failed to receive the game id: %e\n", err)
 	}
+	if err := websocket.Message.Receive(ws, &playerId); err != nil {
+		log.Printf("failed to receive the player id: %e\n", err)
+	}
 	game := games[gameId]
-	game.ws = ws
-	game.send("board", game.Reversi.BoardInfo())
-	game.onMessage()
+	if playerId == game.HostId {
+		game.HostConn = ws
+		log.Printf("Host: %s (%+v)\n", game.HostId, game.HostConn)
+	} else if playerId == game.GuestId {
+		game.GuestConn = ws
+		log.Printf("Guest: %s (%+v)\n", game.GuestId, game.GuestConn)
+	} else {
+		log.Printf("you (%s) don't join the game %s\n", playerId, gameId)
+		log.Printf("game: %+v\n", game)
+	}
+	game.send(ws, "board", game.Reversi.BoardInfo())
+	game.onMessage(ws)
 }

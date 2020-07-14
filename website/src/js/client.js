@@ -170,6 +170,7 @@ const ws = new WebSocket("ws://" + location.host + "/open")
 ws.onopen = (event) => {
     console.log("connected.", event)
     ws.send(gameId)
+    ws.send(playerId)
 }
 ws.onclose = (event) => console.log("disconnected.", event)
 ws.onerror = (event) => console.log("Error: ", event)

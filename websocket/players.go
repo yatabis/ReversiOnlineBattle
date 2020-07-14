@@ -1,5 +1,10 @@
 package websocket
 
+import (
+	"math/rand"
+	"time"
+)
+
 var playerIdList = []string{
 	"JamesPeebles",
 	"MichelMayor",
@@ -18,7 +23,7 @@ var playerIdList = []string{
 	"IsamuAkasaki",
 	"HiroshiAmano",
 	"ShujiNakamura",
-	"FrançoisEnglert",
+	"FranCoisEnglert",
 	"PeterW.Higgs",
 	"SergeHaroche",
 	"DavidJ.Wineland",
@@ -34,12 +39,12 @@ var playerIdList = []string{
 	"MakotoKobayashi",
 	"ToshihideMaskawa",
 	"AlbertFert",
-	"PeterGrünberg",
+	"PeterGruenberg",
 	"JohnC.Mather",
 	"GeorgeF.Smoot",
 	"RoyJ.Glauber",
 	"JohnL.Hall",
-	"TheodorW.Hänsch",
+	"TheodorW.Haensch",
 	"DavidJ.Gross",
 	"H.DavidPolitzer",
 	"FrankWilczek",
@@ -55,10 +60,10 @@ var playerIdList = []string{
 	"ZhoresI.Alferov",
 	"HerbertKroemer",
 	"JackS.Kilby",
-	"Gerardus‘tHooft",
+	"GerardustHooft",
 	"MartinusJ.G.Veltman",
 	"RobertB.Laughlin",
-	"HorstL.Störmer",
+	"HorstL.Stoermer",
 	"DanielC.Tsui",
 	"StevenChu",
 	"ClaudeCohen-Tannoudji",
@@ -84,7 +89,7 @@ var playerIdList = []string{
 	"MelvinSchwartz",
 	"JackSteinberger",
 	"J.GeorgBednorz",
-	"K.AlexanderMüller",
+	"K.AlexanderMueller",
 	"ErnstRuska",
 	"GerdBinnig",
 	"HeinrichRohrer",
@@ -122,8 +127,8 @@ var playerIdList = []string{
 	"LeonNeilCooper",
 	"JohnRobertSchrieffer",
 	"DennisGabor",
-	"HannesOlofGöstaAlfvén",
-	"LouisEugèneFélixNéel",
+	"HannesOlofGoestaAlfvén",
+	"LouisEugeneFelixNeel",
 	"MurrayGell-Mann",
 	"LuisWalterAlvarez",
 	"HansAlbrechtBethe",
@@ -139,12 +144,12 @@ var playerIdList = []string{
 	"J.HansD.Jensen",
 	"LevDavidovichLandau",
 	"RobertHofstadter",
-	"RudolfLudwigMössbauer",
+	"RudolfLudwigMoessbauer",
 	"DonaldArthurGlaser",
-	"EmilioGinoSegrè",
+	"EmilioGinoSegre",
 	"OwenChamberlain",
 	"PavelAlekseyevichCherenkov",
-	"Il´jaMikhailovichFrank",
+	"IljaMikhailovichFrank",
 	"IgorYevgenyevichTamm",
 	"ChenNingYang",
 	"Tsung-Dao(T.D.)Lee",
@@ -175,7 +180,7 @@ var playerIdList = []string{
 	"VictorFranzHess",
 	"CarlDavidAnderson",
 	"JamesChadwick",
-	"ErwinSchrödinger",
+	"ErwinSchroedinger",
 	"PaulAdrienMauriceDirac",
 	"WernerKarlHeisenberg",
 	"SirChandrasekharaVenkataRaman",
@@ -198,7 +203,7 @@ var playerIdList = []string{
 	"WilliamLawrenceBragg",
 	"MaxvonLaue",
 	"HeikeKamerlinghOnnes",
-	"NilsGustafDalén",
+	"NilsGustafDalen",
 	"WilhelmWien",
 	"JohannesDiderikvanderWaals",
 	"GuglielmoMarconi",
@@ -210,10 +215,10 @@ var playerIdList = []string{
 	"LordRayleigh(JohnWilliamStrutt)",
 	"AntoineHenriBecquerel",
 	"PierreCurie",
-	"MarieCurie,néeSklodowska",
+	"MarieCurieneeSklodowska",
 	"HendrikAntoonLorentz",
 	"PieterZeeman",
-	"WilhelmConradRöntgen",
+	"WilhelmConradRoentgen",
 }
 
 var playerIdUsed = make(map[string]bool)
@@ -222,4 +227,14 @@ func initPlayerIds() {
 	for _, playerId := range playerIdList {
 		playerIdUsed[playerId] = false
 	}
+}
+
+func createPlayerId() (playerId string) {
+	rand.Seed(time.Now().UnixNano())
+	playerId = playerIdList[rand.Intn(len(playerIdList))]
+	for playerIdUsed[playerId] {
+		playerId = playerIdList[rand.Intn(len(playerIdList))]
+	}
+	playerIdUsed[playerId] = true
+	return
 }

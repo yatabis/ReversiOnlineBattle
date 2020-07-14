@@ -3,8 +3,6 @@ package websocket
 import (
 	"golang.org/x/net/websocket"
 	"log"
-	"math/rand"
-	"time"
 
 	"ReversiOnlineBattle/reversi"
 )
@@ -19,11 +17,12 @@ const (
 )
 
 type GameRoom struct {
-	GameId  string
-	HostId  string
-	GuestId string
-	Status  GameStatus
-	ws      *websocket.Conn
+	GameId    string
+	HostId    string
+	GuestId   string
+	Status    GameStatus
+	HostConn  *websocket.Conn
+	GuestConn *websocket.Conn
 	*reversi.Reversi
 }
 
@@ -35,31 +34,22 @@ func createGameId() string {
 	return "test"
 }
 
-func createPlayerId() (playerId string) {
-	rand.Seed(time.Now().UnixNano())
-	playerId = playerIdList[rand.Intn(len(playerIdList))]
-	for playerIdUsed[playerId] {
-		playerId = playerIdList[rand.Intn(len(playerIdList))]
-	}
-	playerIdUsed[playerId] = true
-	return
-}
-
-func StartGame(gameId, playerId string) (string, string) {
+func StartGame(gameId, hostId string) (string, string) {
 	if gameId == "" {
 		gameId = createGameId()
 	}
-	if playerId == "" {
-		playerId = createPlayerId()
+	if hostId == "" {
+		hostId = createPlayerId()
 	}
+	log.Printf("Host ID: %s\n", hostId)
 	games[gameId] = &GameRoom{
-		GameId: gameId,
-		HostId: playerId,
-		Status: StatusWaiting,
+		GameId:  gameId,
+		HostId:  hostId,
+		Status:  StatusWaiting,
 		Reversi: reversi.Init(),
 	}
-	players[playerId] = gameId
-	return gameId, playerId
+	players[hostId] = gameId
+	return gameId, hostId
 }
 
 func JoinGame(gameId, guestId string) string {
@@ -71,44 +61,46 @@ func JoinGame(gameId, guestId string) string {
 		guestId = createPlayerId()
 	}
 	game.GuestId = guestId
+	players[guestId] = gameId
 	game.Status = StatusStarting
 	return guestId
 }
 
-func (g *GameRoom) onMessage() {
+func (g *GameRoom) onMessage(ws *websocket.Conn) {
 	for {
 		var data Data
-		if err := websocket.JSON.Receive(g.ws, &data); err != nil {
+		if err := websocket.JSON.Receive(ws, &data); err != nil {
 			log.Printf("recieve data: %+v\n", data)
 			log.Println(err)
 			break
 		}
 		log.Printf("recieve: %+v\n", data)
 		result := g.Reversi.Put(data.Turn, data.Point.X+1, data.Point.Y+1)
-		g.send("board", g.Reversi.BoardInfo())
+		g.send(g.HostConn, "board", g.Reversi.BoardInfo())
+		g.send(g.GuestConn, "board", g.Reversi.BoardInfo())
 		switch result {
 		case reversi.NotYourTurn:
-			g.send(string(result), nil)
+			g.send(ws, string(result), nil)
 		case reversi.InvalidPut:
-			g.send(string(result), nil)
+			g.send(ws, string(result), nil)
 		case reversi.TurnChange:
-			g.send(string(result), g.Reversi.Turn)
+			g.send(ws, string(result), g.Reversi.Turn)
 		case reversi.TurnPass:
-			g.send(string(result), g.Reversi.Turn)
+			g.send(ws, string(result), g.Reversi.Turn)
 		case reversi.GameEnd:
-			g.send(string(result), nil)
+			g.send(ws, string(result), nil)
 		default:
 			break
 		}
 	}
 }
 
-func (g *GameRoom) send(t string, data interface{}) {
+func (g *GameRoom) send(ws *websocket.Conn, t string, data interface{}) {
 	msg := SendMessage{
 		Type: t,
 		Data: data,
 	}
-	if err := websocket.JSON.Send(g.ws, msg); err != nil {
+	if err := websocket.JSON.Send(ws, msg); err != nil {
 		log.Println(err)
 	}
 }
