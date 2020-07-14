@@ -27,25 +27,34 @@ func Init(mux *http.ServeMux) {
 }
 
 func wait(ws *websocket.Conn) {
-	time.Sleep(5 * time.Second)
-	if err := websocket.Message.Send(ws, "start"); err != nil {
-		log.Printf("failed to send start-message: %e\n", err)
-	}
-}
-
-func open(ws *websocket.Conn) {
 	var playerId string
 	if err := websocket.Message.Receive(ws, &playerId); err != nil {
 		log.Printf("failed to receive the player id: %e\n", err)
 	}
-	log.Printf("connected to %s\n", playerId)
 	gameId, okPlayer := players[playerId]
 	game, okGame := games[gameId]
 	if !(okPlayer && okGame) {
 		gameId, _ = StartGame(gameId, playerId)
 		game = games[gameId]
 	}
-	log.Printf("loaded game %s\n", gameId)
+	for {
+		if game.Status == StatusStarting {
+			if err := websocket.Message.Send(ws, "start"); err != nil {
+				log.Printf("failed to send start-message: %e\n", err)
+			}
+			game.Status = StatusPlaying
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func open(ws *websocket.Conn) {
+	var gameId string
+	if err := websocket.Message.Receive(ws, &gameId); err != nil {
+		log.Printf("failed to receive the game id: %e\n", err)
+	}
+	game := games[gameId]
 	game.ws = ws
 	game.send("board", game.Reversi.BoardInfo())
 	game.onMessage()
