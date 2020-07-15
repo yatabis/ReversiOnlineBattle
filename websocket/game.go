@@ -30,10 +30,6 @@ var games = make(map[string]*GameRoom)
 
 var players = make(map[string]string)
 
-func createGameId() string {
-	return "test"
-}
-
 func StartGame(gameId, hostId string) (string, string) {
 	if gameId == "" {
 		gameId = createGameId()
