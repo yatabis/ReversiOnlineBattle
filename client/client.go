@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 
 	"ReversiOnlineBattle/websocket"
 )
@@ -22,14 +23,9 @@ func waitingHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	gameId := ""
-	if g, err := r.Cookie("GameID"); err == nil {
-		gameId = g.Value
-	} else {
-		playerId := ""
-		if p, err := r.Cookie("PlayerID"); err == nil {
-			playerId = p.Value
-		}
+	gameId := getCookie(r, "GameID")
+	if gameId == "" {
+		playerId := getCookie(r, "PlayerID")
 		gameId, playerId = websocket.StartGame("", playerId)
 		http.SetCookie(w, cookie("GameID", gameId))
 		http.SetCookie(w, cookie("PlayerID", playerId))
@@ -44,10 +40,7 @@ func joinHandler(w http.ResponseWriter, r *http.Request) {
 	if gameId == "" {
 		http.ServeFile(w, r, "./website/static/html/join.html")
 	} else {
-		playerId := ""
-		if p, err := r.Cookie("PlayerID"); err == nil {
-			playerId = p.Value
-		}
+		playerId := getCookie(r, "PlayerID")
 		playerId = websocket.JoinGame(gameId, playerId)
 		if playerId == "" {
 			w.WriteHeader(http.StatusBadRequest)
@@ -72,9 +65,21 @@ func playHandler(w http.ResponseWriter, r *http.Request) {
 func cookie(name, value string) *http.Cookie {
 	return &http.Cookie{
 		Name: name,
-		Value: value,
+		Value: url.PathEscape(value),
 		MaxAge: 60 * 60 * 24 * 14,
 		SameSite: http.SameSiteStrictMode,
 		// TODO: 本番デプロイするときは Secure 属性を true にする
 	}
+}
+
+func getCookie(r *http.Request, name string) string {
+	cookie, err := r.Cookie(name)
+	if err != nil {
+		return ""
+	}
+	value, err := url.PathUnescape(cookie.Value)
+	if err != nil {
+		return ""
+	}
+	return value
 }
