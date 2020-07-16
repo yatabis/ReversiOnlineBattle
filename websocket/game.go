@@ -89,11 +89,11 @@ func (g *GameRoom) onMessage(ws *websocket.Conn) {
 		case reversi.InvalidPut:
 			g.send(ws, string(result), nil)
 		case reversi.TurnChange:
-			g.send(ws, string(result), g.Reversi.Turn)
+			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.TurnPass:
-			g.send(ws, string(result), g.Reversi.Turn)
+			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.GameEnd:
-			g.send(ws, string(result), nil)
+			g.sendBoth(string(result), nil)
 		default:
 			break
 		}
@@ -108,4 +108,9 @@ func (g *GameRoom) send(ws *websocket.Conn, t string, data interface{}) {
 	if err := websocket.JSON.Send(ws, msg); err != nil {
 		log.Println(err)
 	}
+}
+
+func (g *GameRoom) sendBoth(t string, data interface{}) {
+	g.send(g.HostConn, t, data)
+	g.send(g.GuestConn, t, data)
 }
