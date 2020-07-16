@@ -200,6 +200,8 @@ ws.onmessage = (event) => {
         case "game_end":
             board.updateScores()
             console.log("ゲーム終了")
+            document.cookie = "GameID=;max-age=0"
+            document.cookie = "PlayerID=;max-age=0"
             break
         default:
             console.log("receive unknown message.")
