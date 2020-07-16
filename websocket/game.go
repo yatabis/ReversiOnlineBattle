@@ -87,13 +87,13 @@ func (g *GameRoom) onMessage(ws *websocket.Conn) {
 		case reversi.InvalidPut:
 			g.send(ws, string(result), nil)
 		case reversi.TurnChange:
-			g.sendBoth("board", g.Reversi.BoardInfo())
+			g.sendBoard()
 			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.TurnPass:
-			g.sendBoth("board", g.Reversi.BoardInfo())
+			g.sendBoard()
 			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.GameEnd:
-			g.sendBoth("board", g.Reversi.BoardInfo())
+			g.sendBoard()
 			g.sendBoth(string(result), nil)
 		default:
 			break
@@ -114,4 +114,9 @@ func (g *GameRoom) send(ws *websocket.Conn, t string, data interface{}) {
 func (g *GameRoom) sendBoth(t string, data interface{}) {
 	g.send(g.HostConn, t, data)
 	g.send(g.GuestConn, t, data)
+}
+
+func (g *GameRoom) sendBoard() {
+	g.send(g.HostConn, "board", g.Reversi.BoardInfo(1))
+	g.send(g.GuestConn, "board", g.Reversi.BoardInfo(2))
 }

@@ -59,14 +59,15 @@ func open(ws *websocket.Conn) {
 	game := games[gameId]
 	if playerId == game.HostId {
 		game.HostConn = ws
+		game.send(ws, "board", game.Reversi.BoardInfo(1))
 		log.Printf("Host: %s (%+v)\n", game.HostId, game.HostConn)
 	} else if playerId == game.GuestId {
 		game.GuestConn = ws
+		game.send(ws, "board", game.Reversi.BoardInfo(2))
 		log.Printf("Guest: %s (%+v)\n", game.GuestId, game.GuestConn)
 	} else {
 		log.Printf("you (%s) don't join the game %s\n", playerId, gameId)
 		log.Printf("game: %+v\n", game)
 	}
-	game.send(ws, "board", game.Reversi.BoardInfo())
 	game.onMessage(ws)
 }
