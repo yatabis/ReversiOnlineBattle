@@ -42,6 +42,16 @@ func (rv *Reversi) Put(t, x, y int) PutResult {
 	}
 }
 
-func (rv Reversi) BoardInfo() [][]int {
-	return rv.Board.board()
+func (rv Reversi) BoardInfo(turn int) (board [][]int) {
+	board = rv.Board.board()
+	if turn != rv.Turn {
+		for i := range board {
+			for j, b := range board[i] {
+				if b == 3 {
+					board[i][j] = 0
+				}
+			}
+		}
+	}
+	return
 }
