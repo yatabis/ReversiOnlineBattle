@@ -163,10 +163,15 @@ const board = new Board([
     [0, 0, 0, 0, 0, 0, 0, 0],
 ])
 
-const host = document.getElementById("host").innerText
-const gameId = document.getElementById("game-id").innerText
-const ws = new WebSocket("ws://" + host + "/open")
-ws.onopen = (event) => console.log("connected.", event)
+const gameId = decodeURI(document.cookie.split("; ").filter(s => s.startsWith("GameID"))[0].split("=")[1])
+const playerId = decodeURI(document.cookie.split("; ").filter(s => s.startsWith("PlayerID"))[0].split("=")[1])
+// TODO: 本番デプロイするときは URL のプロトコルを wss にする
+const ws = new WebSocket("ws://" + location.host + "/open")
+ws.onopen = (event) => {
+    console.log("connected.", event)
+    ws.send(gameId)
+    ws.send(playerId)
+}
 ws.onclose = (event) => console.log("disconnected.", event)
 ws.onerror = (event) => console.log("Error: ", event)
 ws.onmessage = (event) => {
@@ -174,6 +179,7 @@ ws.onmessage = (event) => {
     switch (msg.type) {
         case "board":
             board.updateBoard(msg.data)
+            board.updateScores()
             break
         case "not_your_turn":
             console.log("Not your turn.")
@@ -194,6 +200,8 @@ ws.onmessage = (event) => {
         case "game_end":
             board.updateScores()
             console.log("ゲーム終了")
+            document.cookie = "GameID=;max-age=0"
+            document.cookie = "PlayerID=;max-age=0"
             break
         default:
             console.log("receive unknown message.")
@@ -202,12 +210,8 @@ ws.onmessage = (event) => {
 
 canvas.addEventListener("click", (event) => {
     const data = JSON.stringify({
-        gameId: gameId,
-        turn: turn,
-        point: {
-            x: Math.floor((event.clientX - canvas.offsetLeft) / baseSize * sizeRatio),
-            y: Math.floor((event.clientY - canvas.offsetTop) / baseSize * sizeRatio)
-        }
+        x: Math.floor((event.clientX - canvas.offsetLeft) / baseSize * sizeRatio),
+        y: Math.floor((event.clientY - canvas.offsetTop) / baseSize * sizeRatio)
     })
     console.log("send: ", data)
     ws.send(data)

@@ -4,17 +4,12 @@ import (
 	"golang.org/x/net/websocket"
 	"log"
 	"net/http"
-
-	"ReversiOnlineBattle/reversi"
+	"time"
 )
 
-type Data struct {
-	GameId string `json:"gameId"`
-	Turn   int    `json:"turn"`
-	Point  struct{
-		X int `json:"x"`
-		Y int `json:"Y"`
-	}             `json:"point"`
+type Point struct {
+	X int `json:"x"`
+	Y int `json:"Y"`
 }
 
 type SendMessage struct {
@@ -23,47 +18,56 @@ type SendMessage struct {
 }
 
 func Init(mux *http.ServeMux) {
+	initGameIds()
+	initPlayerIds()
+	mux.Handle("/wait", websocket.Handler(wait))
 	mux.Handle("/open", websocket.Handler(open))
 }
 
-func open(ws *websocket.Conn) {
+func wait(ws *websocket.Conn) {
+	var playerId string
+	if err := websocket.Message.Receive(ws, &playerId); err != nil {
+		log.Printf("failed to receive the player id: %e\n", err)
+	}
+	gameId, okPlayer := players[playerId]
+	game, okGame := games[gameId]
+	if !(okPlayer && okGame) {
+		gameId, _ = StartGame(gameId, playerId)
+		game = games[gameId]
+	}
 	for {
-		var data Data
-		if err := websocket.JSON.Receive(ws, &data); err != nil {
-			log.Printf("recieve data: %+v\n", data)
-			log.Println(err)
+		if game.Status == StatusStarting {
+			if err := websocket.Message.Send(ws, "start"); err != nil {
+				log.Printf("failed to send start-message: %e\n", err)
+			}
+			game.Status = StatusPlaying
 			break
 		}
-		log.Printf("recieve: %+v\n", data)
-		rv, ok := games[data.GameId]
-		if !ok {
-			break
-		}
-		result := rv.Put(data.Turn, data.Point.X+1, data.Point.Y+1)
-		send(ws, "board", rv.BoardInfo())
-		switch result {
-		case reversi.NotYourTurn:
-			send(ws, string(result), nil)
-		case reversi.InvalidPut:
-			send(ws, string(result), nil)
-		case reversi.TurnChange:
-			send(ws, string(result), rv.Turn)
-		case reversi.TurnPass:
-			send(ws, string(result), rv.Turn)
-		case reversi.GameEnd:
-			send(ws, string(result), nil)
-		default:
-			break
-		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
-func send(ws *websocket.Conn, result string, data interface{}) {
-	msg := SendMessage{
-		Type: result,
-		Data: data,
+func open(ws *websocket.Conn) {
+	var gameId string
+	var playerId string
+	if err := websocket.Message.Receive(ws, &gameId); err != nil {
+		log.Printf("failed to receive the game id: %e\n", err)
 	}
-	if err := websocket.JSON.Send(ws, msg); err != nil {
-		log.Println(err)
+	if err := websocket.Message.Receive(ws, &playerId); err != nil {
+		log.Printf("failed to receive the player id: %e\n", err)
 	}
+	game := games[gameId]
+	if playerId == game.HostId {
+		game.HostConn = ws
+		game.send(ws, "board", game.Reversi.BoardInfo(1))
+		log.Printf("Host: %s (%+v)\n", game.HostId, game.HostConn)
+	} else if playerId == game.GuestId {
+		game.GuestConn = ws
+		game.send(ws, "board", game.Reversi.BoardInfo(2))
+		log.Printf("Guest: %s (%+v)\n", game.GuestId, game.GuestConn)
+	} else {
+		log.Printf("you (%s) don't join the game %s\n", playerId, gameId)
+		log.Printf("game: %+v\n", game)
+	}
+	game.onMessage(ws)
 }
