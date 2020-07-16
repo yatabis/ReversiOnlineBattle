@@ -7,13 +7,9 @@ import (
 	"time"
 )
 
-type Data struct {
-	GameId string `json:"gameId"`
-	Turn   int    `json:"turn"`
-	Point  struct{
-		X int `json:"x"`
-		Y int `json:"Y"`
-	}             `json:"point"`
+type Point struct {
+	X int `json:"x"`
+	Y int `json:"Y"`
 }
 
 type SendMessage struct {

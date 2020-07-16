@@ -64,13 +64,13 @@ func JoinGame(gameId, guestId string) string {
 
 func (g *GameRoom) onMessage(ws *websocket.Conn) {
 	for {
-		var data Data
-		if err := websocket.JSON.Receive(ws, &data); err != nil {
-			log.Printf("recieve data: %+v\n", data)
+		var point Point
+		if err := websocket.JSON.Receive(ws, &point); err != nil {
+			log.Printf("recieve point: %+v\n", point)
 			log.Println(err)
 			break
 		}
-		log.Printf("recieve: %+v\n", data)
+		log.Printf("recieve: %+v\n", point)
 		turn := 0
 		switch ws {
 		case g.HostConn:
@@ -80,7 +80,7 @@ func (g *GameRoom) onMessage(ws *websocket.Conn) {
 		default:
 			log.Printf("receive a message from invalid connection: %+v\n", ws)
 		}
-		result := g.Reversi.Put(turn, data.Point.X+1, data.Point.Y+1)
+		result := g.Reversi.Put(turn, point.X+1, point.Y+1)
 		g.send(g.HostConn, "board", g.Reversi.BoardInfo())
 		g.send(g.GuestConn, "board", g.Reversi.BoardInfo())
 		switch result {

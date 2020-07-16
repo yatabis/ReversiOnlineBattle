@@ -208,12 +208,8 @@ ws.onmessage = (event) => {
 
 canvas.addEventListener("click", (event) => {
     const data = JSON.stringify({
-        gameId: gameId,
-        turn: turn,
-        point: {
-            x: Math.floor((event.clientX - canvas.offsetLeft) / baseSize * sizeRatio),
-            y: Math.floor((event.clientY - canvas.offsetTop) / baseSize * sizeRatio)
-        }
+        x: Math.floor((event.clientX - canvas.offsetLeft) / baseSize * sizeRatio),
+        y: Math.floor((event.clientY - canvas.offsetTop) / baseSize * sizeRatio)
     })
     console.log("send: ", data)
     ws.send(data)
