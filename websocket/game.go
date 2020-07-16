@@ -71,7 +71,16 @@ func (g *GameRoom) onMessage(ws *websocket.Conn) {
 			break
 		}
 		log.Printf("recieve: %+v\n", data)
-		result := g.Reversi.Put(data.Turn, data.Point.X+1, data.Point.Y+1)
+		turn := 0
+		switch ws {
+		case g.HostConn:
+			turn = 1
+		case g.GuestConn:
+			turn = 2
+		default:
+			log.Printf("receive a message from invalid connection: %+v\n", ws)
+		}
+		result := g.Reversi.Put(turn, data.Point.X+1, data.Point.Y+1)
 		g.send(g.HostConn, "board", g.Reversi.BoardInfo())
 		g.send(g.GuestConn, "board", g.Reversi.BoardInfo())
 		switch result {
