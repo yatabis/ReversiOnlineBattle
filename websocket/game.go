@@ -81,18 +81,19 @@ func (g *GameRoom) onMessage(ws *websocket.Conn) {
 			log.Printf("receive a message from invalid connection: %+v\n", ws)
 		}
 		result := g.Reversi.Put(turn, point.X+1, point.Y+1)
-		g.send(g.HostConn, "board", g.Reversi.BoardInfo())
-		g.send(g.GuestConn, "board", g.Reversi.BoardInfo())
 		switch result {
 		case reversi.NotYourTurn:
 			g.send(ws, string(result), nil)
 		case reversi.InvalidPut:
 			g.send(ws, string(result), nil)
 		case reversi.TurnChange:
+			g.sendBoth("board", g.Reversi.BoardInfo())
 			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.TurnPass:
+			g.sendBoth("board", g.Reversi.BoardInfo())
 			g.sendBoth(string(result), g.Reversi.Turn)
 		case reversi.GameEnd:
+			g.sendBoth("board", g.Reversi.BoardInfo())
 			g.sendBoth(string(result), nil)
 		default:
 			break
