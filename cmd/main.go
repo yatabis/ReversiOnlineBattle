@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +13,7 @@ func main() {
 	port := os.Getenv("PORT")
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprintf(w, "Hello, this is Reversi Online Battle.\nplay game => /play\n")
+		http.ServeFile(w, r, "./website/static/html/top.html")
 	})
 	websocket.Init(mux)
 	client.Init(mux)

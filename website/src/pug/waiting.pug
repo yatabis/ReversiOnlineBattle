@@ -1,14 +1,10 @@
-doctype html
-html(lang="ja")
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport" content="width=device-width, initial-scale=1.0")
-        meta(http-equiv="X-UA-Compatible" content="ie=edge")
-        title Reversi Online Battle | {{ .GameID }}
+extends _head
 
-    body
-        h1.title Reversi Online Battle
-        h2.game-id ボード {{ .GameID }}
-        p 対戦相手の参加を待っています...
+block title
+    title Reversi Online Battle | {{ .GameID }}
+
+block body
+    h2.game-id ボード {{ .GameID }}
+    p 対戦相手の参加を待っています...
 
     script(src="resources/js/waiting.js")
