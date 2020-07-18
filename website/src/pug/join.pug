@@ -3,8 +3,14 @@ extends _head
 block title
     title Reversi Online Battle | Join
 
+block style
+    link(rel="stylesheet" href="resources/css/join.css")
+
 block body
-    input#game-id(type="text" placeholder="ボード名を入力")
-    button(type="button" onclick="join()") このボードに参加
+    input#game-id(type="text" placeholder="合戦名を入力")
+    p#message
+    a.join(href="javascript:;" onclick="join()")
+        span この合戦
+        span に参加
 
     script(src="resources/js/join.js")
