@@ -1,16 +1,15 @@
-doctype html
-html(lang="ja")
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport" content="width=device-width, initial-scale=1.0")
-        meta(http-equiv="X-UA-Compatible" content="ie=edge")
-        title Reversi Online Battle | Play
-        link(rel="stylesheet" href="resources/css/play.css")
+extends _head
 
-    body
-        h1.title Reversi Online Battle
-        div.score
-            canvas#score(width=818 height=104)
-        div.board
-            canvas#board(width=818 height=818)
-        script(src="resources/js/client.js")
+block title
+    title Reversi Online Battle | Play
+
+block style
+    link(rel="stylesheet" href="resources/css/play.css")
+
+block body
+    div.score
+        canvas#score(width=818 height=104)
+    div.board
+        canvas#board(width=818 height=818)
+
+    script(src="resources/js/client.js")
